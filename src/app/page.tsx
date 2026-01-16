@@ -77,7 +77,7 @@ export default async function Home() {
                 {/* Chart (links) */}
                 <div className="scale-75 -ml-8">
                    {fighter.style_score ? (
-                     <RadarChart stats={fighter.style_score} />
+                     <RadarChart stats={fighter.style_score as any} />
                    ) : (
                      <div className="text-zinc-600 text-xs ml-8">No Stats Data</div>
                    )}
