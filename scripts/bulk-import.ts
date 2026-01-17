@@ -2,14 +2,14 @@ import { scrapeFighter } from './scrape-fighter.ts';
 
 // Hier ist deine Liste! Füge einfach Links hinzu.
 const fighterUrls = [
-  "https://en.wikipedia.org/wiki/Rico_Verhoeven",
-  "https://en.wikipedia.org/wiki/Badr_Hari",
-  "https://en.wikipedia.org/wiki/Gökhan_Saki",
-  "https://en.wikipedia.org/wiki/Jamal_Ben_Saddik",
-  "https://en.wikipedia.org/wiki/Alex_Pereira",
-  "https://en.wikipedia.org/wiki/Israel_Adesanya",
-  "https://en.wikipedia.org/wiki/Conor_McGregor",
-  "https://en.wikipedia.org/wiki/Jon_Jones",
+  "https://en.wikipedia.org/wiki/Category:Glory_kickboxers",
+  "https://en.wikipedia.org/wiki/Category:K-1_kickboxers",
+  "https://en.wikipedia.org/wiki/Category:Dutch_kickboxers",
+  "https://en.wikipedia.org/wiki/Category:ONE_Championship_kickboxers",
+  "https://en.wikipedia.org/wiki/Category:Kunlun_Fight_kickboxers",
+  "https://en.wikipedia.org/wiki/Category:SUPERKOMBAT_kickboxers",
+  "https://en.wikipedia.org/wiki/Category:It%27s_Showtime_(kickboxing)_kickboxers",
+  "https://en.wikipedia.org/wiki/Category:Enfusion_kickboxers",
   // ... hier kannst du 100 Links reinpacken
 ];
 
