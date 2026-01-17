@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Oswald } from "next/font/google"; // Wir nutzen stabile Google Fonts
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// Inter für normalen Text (lesbar)
+const inter = Inter({ subsets: ["latin"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// Oswald für Überschriften (Kampfsport-Look)
+const oswald = Oswald({ 
+  subsets: ["latin"], 
+  variable: '--font-oswald' // Damit wir es in Tailwind nutzen können
 });
 
 export const metadata: Metadata = {
   title: "StrikeBase",
-  description: "The ultimate database for martial arts.",
+  description: "The ultimate fighter database",
 };
 
 export default function RootLayout({
@@ -25,10 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        suppressHydrationWarning={true}
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${inter.className} ${oswald.variable} bg-zinc-950 text-zinc-100 pt-20`}>
         <Navbar />
         {children}
       </body>
