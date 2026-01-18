@@ -12,10 +12,9 @@ function calculateRating(fighter: Fighter | null) {
   
   const wins = fighter.wins || 0;
   const losses = fighter.losses || 0;
-  const draws = fighter.draws || 0;
   const kos = fighter.kos || 0;
 
-  const totalFights = wins + losses + draws;
+  const totalFights = wins + losses;
   const winScore = wins * 5;
   const koScore = kos * 3;
 
@@ -123,7 +122,7 @@ export default function ArenaPage() {
           {/* Log Ausgabe */}
           {log.length > 0 && (
             <div className="mt-8 w-full bg-black/80 border border-white/10 p-3 rounded text-xs font-mono text-green-400">
-              {log.map((line, i) => <div key={i}>> {line}</div>)}
+              {log.map((line, i) => <div key={i}>&gt; {line}</div>)}
             </div>
           )}
         </div>

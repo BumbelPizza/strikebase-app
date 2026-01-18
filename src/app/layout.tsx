@@ -1,20 +1,32 @@
-import type { Metadata } from "next";
-import { Inter, Oswald } from "next/font/google"; // Wir nutzen stabile Google Fonts
+import type { Metadata, Viewport } from "next";
+import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Inter für normalen Text (lesbar)
-const inter = Inter({ subsets: ["latin"] });
+// Inter for body text (readable)
+const inter = Inter({
+  subsets: ["latin"],
+  variable: '--font-inter'
+});
 
-// Oswald für Überschriften (Kampfsport-Look)
-const oswald = Oswald({ 
-  subsets: ["latin"], 
-  variable: '--font-oswald' // Damit wir es in Tailwind nutzen können
+// Oswald for headings (combat sports look)
+const oswald = Oswald({
+  subsets: ["latin"],
+  variable: '--font-oswald'
 });
 
 export const metadata: Metadata = {
-  title: "StrikeBase",
-  description: "The ultimate fighter database",
+  title: "StrikeBase - Combat Sports Management",
+  description: "The ultimate platform for fighter management, analysis, and combat sports intelligence.",
+  keywords: "combat sports, MMA, kickboxing, fighter management, sports analytics",
+  authors: [{ name: "StrikeBase Team" }],
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#dc2626',
 };
 
 export default function RootLayout({
@@ -23,10 +35,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} ${oswald.variable} bg-zinc-950 text-zinc-100 pt-20`}>
-        <Navbar />
-        {children}
+    <html lang="en" className="dark">
+      <body className={`${inter.variable} ${oswald.variable} font-inter bg-zinc-950 text-zinc-100 antialiased`}>
+        <ErrorBoundary>
+          <Navbar />
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </ErrorBoundary>
       </body>
     </html>
   );

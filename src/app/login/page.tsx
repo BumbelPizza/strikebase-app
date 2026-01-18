@@ -1,22 +1,30 @@
 'use client';
 
-import { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-
-// Supabase initialisieren
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import Link from 'next/link';
+import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false); // Schalter: Login oder Registrieren
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'error' | 'success' } | null>(null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        router.push('/dashboard');
+      }
+    };
+    checkUser();
+  }, [router]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,105 +33,177 @@ export default function LoginPage() {
 
     try {
       if (isSignUp) {
-        // --- REGISTRIEREN ---
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          // Wichtig: Wir leiten nach der Reg direkt weiter, falls Email-Confirm aus ist
         });
+
         if (error) throw error;
-        setMessage({ text: 'Account erstellt! Leite weiter...', type: 'success' });
-        
-        // Kurze Pause für den Effekt, dann ab zum Dashboard
-        setTimeout(() => router.push('/dashboard'), 1000);
+
+        if (data.user && !data.user.email_confirmed_at) {
+          setMessage({
+            text: 'Account created! Please check your email to confirm your account.',
+            type: 'success'
+          });
+        } else {
+          setMessage({
+            text: 'Account created successfully! Redirecting...',
+            type: 'success'
+          });
+          setTimeout(() => router.push('/setup'), 1500);
+        }
       } else {
-        // --- LOGIN ---
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+
         if (error) throw error;
-        
-        // Erfolgreich eingeloggt -> Ab zum Dashboard
+
         router.push('/dashboard');
       }
     } catch (error: any) {
-      setMessage({ text: error.message || 'Fehler aufgetreten', type: 'error' });
+      console.error('Auth error:', error);
+      setMessage({
+        text: error.message || 'An error occurred during authentication',
+        type: 'error'
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setMessage(null);
+    setEmail('');
+    setPassword('');
+  };
+
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
-      {/* Logo Area */}
-      <h1 className="text-6xl font-oswald italic text-red-600 mb-2 uppercase tracking-tighter">
-        StrikeBase
-      </h1>
-      <p className="text-gray-500 mb-8 font-mono text-xs uppercase tracking-widest">Manager Access Only</p>
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <Link href="/" className="inline-block">
+          <h1 className="text-4xl sm:text-6xl font-oswald italic text-red-500 mb-2 uppercase tracking-tighter">
+            Strike<span className="text-white">Base</span>
+          </h1>
+        </Link>
+        <p className="text-zinc-400 font-mono text-xs uppercase tracking-widest">
+          Combat Sports Management Platform
+        </p>
+      </div>
 
-      {/* Login Card */}
-      <div className="w-full max-w-sm bg-zinc-900 border border-white/10 p-8 rounded-xl shadow-[0_0_50px_rgba(220,38,38,0.1)]">
-        
-        <h2 className="text-2xl text-white font-oswald mb-6 uppercase">
-          {isSignUp ? 'Neuen Account erstellen' : 'Login'}
-        </h2>
+      {/* Auth Card */}
+      <div className="w-full max-w-md bg-zinc-900/50 border border-zinc-800 p-8 rounded-xl shadow-2xl backdrop-blur-sm">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl text-white font-oswald mb-2 uppercase">
+            {isSignUp ? 'Create Account' : 'Manager Login'}
+          </h2>
+          <p className="text-zinc-400 text-sm">
+            {isSignUp ? 'Join the elite combat sports network' : 'Access your gym management dashboard'}
+          </p>
+        </div>
 
-        {/* Fehlermeldungen / Erfolg */}
+        {/* Status Message */}
         {message && (
-          <div className={`p-3 rounded mb-4 text-xs font-mono ${message.type === 'error' ? 'bg-red-900/30 text-red-400 border border-red-900' : 'bg-green-900/30 text-green-400 border border-green-900'}`}>
-            {message.text}
+          <div className={`p-4 rounded-lg mb-6 flex items-start gap-3 ${
+            message.type === 'error'
+              ? 'bg-red-900/20 border border-red-800 text-red-400'
+              : 'bg-green-900/20 border border-green-800 text-green-400'
+          }`}>
+            {message.type === 'error' ? (
+              <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
+            ) : (
+              <CheckCircle size={20} className="flex-shrink-0 mt-0.5" />
+            )}
+            <p className="text-sm">{message.text}</p>
           </div>
         )}
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-5">
           <div>
-            <label className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">Email Adresse</label>
-            <input 
-              type="email" 
+            <label htmlFor="email" className="block text-sm text-zinc-300 mb-2 font-medium">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
               required
-              className="w-full bg-black border border-white/10 p-3 rounded text-white focus:border-red-600 focus:outline-none transition-colors font-mono text-sm"
-              placeholder="boss@gym.com"
+              className="w-full bg-zinc-800 border border-zinc-700 p-3 rounded-lg text-white placeholder-zinc-400 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all duration-200"
+              placeholder="manager@gym.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">Passwort</label>
-            <input 
-              type="password" 
-              required
-              minLength={6}
-              className="w-full bg-black border border-white/10 p-3 rounded text-white focus:border-red-600 focus:outline-none transition-colors font-mono text-sm"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <label htmlFor="password" className="block text-sm text-zinc-300 mb-2 font-medium">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                className="w-full bg-zinc-800 border border-zinc-700 p-3 pr-12 rounded-lg text-white placeholder-zinc-400 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all duration-200"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300 transition-colors"
+                disabled={loading}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
-          <button 
+          <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-500 text-white font-oswald uppercase italic p-4 rounded text-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-lg shadow-red-900/20"
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-zinc-700 text-white font-oswald uppercase font-bold py-4 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-red-900/25"
           >
-            {loading ? 'Lade...' : (isSignUp ? 'Registrieren' : 'Enter')}
+            {loading ? (
+              <>
+                <Loader2 size={20} className="animate-spin" />
+                {isSignUp ? 'Creating Account...' : 'Signing In...'}
+              </>
+            ) : (
+              isSignUp ? 'Create Account' : 'Sign In'
+            )}
           </button>
         </form>
 
-        {/* Umschalter Login <-> Register */}
-        <div className="mt-6 text-center text-xs text-gray-500">
-          {isSignUp ? 'Du hast schon einen Account?' : "Noch keine Lizenz?"}{' '}
-          <button 
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setMessage(null);
-            }}
-            className="text-white hover:text-red-500 underline underline-offset-4 transition-colors ml-1"
+        {/* Toggle Mode */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={toggleMode}
+            className="text-zinc-400 hover:text-white text-sm transition-colors underline underline-offset-4"
+            disabled={loading}
           >
-            {isSignUp ? 'Hier einloggen' : 'Hier erstellen'}
+            {isSignUp
+              ? 'Already have an account? Sign in'
+              : "Don't have an account? Sign up"
+            }
           </button>
         </div>
 
+        {/* Back to Home */}
+        <div className="mt-4 text-center">
+          <Link
+            href="/"
+            className="text-zinc-500 hover:text-zinc-400 text-xs transition-colors"
+          >
+            ← Back to StrikeBase
+          </Link>
+        </div>
       </div>
     </div>
   );

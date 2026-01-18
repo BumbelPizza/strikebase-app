@@ -1,4 +1,4 @@
-import { scrapeFighter } from './scrape-fighter.ts';
+import { scrapeFighter } from './scrape-fighter';
 
 // Hier ist deine Liste! Füge einfach Links hinzu.
 const fighterUrls = [
