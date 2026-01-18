@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Inter for body text (readable)
-const inter = Inter({
-  subsets: ["latin"],
+// Using system fonts for better performance and reliability
+const inter = {
+  style: {
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+  },
   variable: '--font-inter'
-});
+};
 
-// Oswald for headings (combat sports look)
-const oswald = Oswald({
-  subsets: ["latin"],
+const oswald = {
+  style: {
+    fontFamily: '"Oswald", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  },
   variable: '--font-oswald'
-});
+};
 
 export const metadata: Metadata = {
   title: "StrikeBase - Combat Sports Management",
