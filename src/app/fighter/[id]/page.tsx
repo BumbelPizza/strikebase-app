@@ -6,6 +6,8 @@ import Link from 'next/link';
 import RadarChart from '@/components/RadarChart';
 import { ChevronLeft, UserPlus, BarChart2, TrendingUp, Shield, Zap, Award, MapPin, Target, Calendar } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   params: {
     id: string;
